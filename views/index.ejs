@@ -21,8 +21,8 @@
       <h1>Tidder</h1>
     </div>
     <div ng-repeat="post in posts | orderBy: '-upvotes'">
-      <span class="glyphicon glyphicon-thumbs-up" ng-click="incrementUpvotes(post)"></span>
-      <span class="glyphicon glyphicon-thumbs-down" ng-click="incrementUpvotes(post)"></span>
+      <span class="glyphicon glyphicon-thumbs-up" ng-click="upvotePost(post)"></span>
+      <span class="glyphicon glyphicon-thumbs-down" ng-click="downvotePost(post)"></span>
 
       <a ng-show = "post.link" href="{{post.link}}">
         {{post.title}}
@@ -44,8 +44,10 @@
       </div>
       <button type="submit" class="btn btn-default">Post</button>
     </form>
-    <!-- The rest of template goes here -->
+
   </script>
+
+  <!-- Template: post -->
   <script type="text/ng-template" id="/posts.html">
     <div class="page-header">
       <h3>
@@ -59,7 +61,8 @@
     </div>
 
     <div ng-repeat="comment in post.comments | orderBy: '-upvotes'">
-      <span class="glyphicon glyphicon-thumbs-up" ng-click="incrementUpvotes(post)"></span>
+      <span class="glyphicon glyphicon-thumbs-up" ng-click="upvoteComment(post, comment)"></span>
+      <span class="glyphicon glyphicon-thumbs-down" ng-click="downvoteComment(post, comment)"></span>
       {{comment.upvotes}} - by {{comment.author}}
       <span style="font-size: 20px; margin-left: 10px;">
         {{comment.body}}

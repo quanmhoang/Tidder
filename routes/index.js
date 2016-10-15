@@ -18,6 +18,16 @@ router.get('/posts', function(req, res, next){
     });
   });
 
+/*POST add posts to database */
+router.post('/posts', function(req, res, next){
+  var post = new Post(req.body);
+
+  post.save(function(err, post){
+    if(err){return next(err);}
+    res.json(post);
+  });
+});
+
 /*Get a post by id*/
 router.param('post', function(req, res, next, id){
   var query = Post.findById(id);
@@ -37,26 +47,6 @@ router.get('/posts/:post', function(req, res, next){
 
 });
 
-
-/*Upvote a post*/
-router.put('/posts/:post/upvote', function(req, res, next){
-  req.post.upvote(function(err, post){
-    if(err) {return next(err);}
-    res.json(post);
-  });
-});
-
-/*POST add posts to database */
-router.post('/posts', function(req, res, next){
-  var post = new Post(req.body);
-
-  post.save(function(err, post){
-    if(err){return next(err);}
-    res.json(post);
-  });
-});
-module.exports = router;
-
 /*POST add comment to a post*/
 router.post('/posts/:post/comments', function(req, res, next){
   var comment = Comment(req.body);
@@ -68,10 +58,29 @@ router.post('/posts/:post/comments', function(req, res, next){
     req.post.comments.push(comment);
     req.post.save(function(err,post){
       if(err) {return next(err);}
-      res.json(post);
+      res.json(comment);
+      return next();
     });
   });
 });
+
+/*Upvote a post*/
+router.put('/posts/:post/upvote', function(req, res, next){
+  req.post.upvote(function(err, post){
+    if(err) {return next(err);}
+    res.json(post);
+  });
+});
+
+/*Downvote a post*/
+router.put('/posts/:post/downvote', function(req, res, next){
+  req.post.downvote(function(err, post){
+    if(err) {return next(err);}
+    res.json(post);
+  });
+});
+
+
 
 /*GET comment by comment ID*/
 router.param('comment', function(req, res, next, id){
@@ -91,10 +100,19 @@ router.get('/posts/:post/comments/:comment', function(req, res, next){
 
 
 /*Upvote comment*/
-router.put('/posts/:post/comments/:comment/upvote', function(req,res,nest){
+router.put('/posts/:post/comments/:comment/upvote', function(req,res,next){
   req.comment.upvote(function(err, comment){
     if(err) {return next(err);}
     res.json(comment);
   });
-
 });
+
+/*Downvote comment*/
+router.put('/posts/:post/comments/:comment/downvote', function(req,res,next){
+  req.comment.downvote(function(err, comment){
+    if(err) {return next(err);}
+    res.json(comment);
+  });
+});
+
+module.exports = router;

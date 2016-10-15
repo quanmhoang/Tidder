@@ -8,22 +8,55 @@ app.factory('postsFactory', ['$http',function($http){
   };
   //Get all posts in the database
   product.getAll = function() {
-    return $http.get('/posts').success(function(data) {
-      angular.copy(data, product.posts);
+    return $http.get('/posts').success(function(res) {
+      angular.copy(res, product.posts);
     });
   };
 
   //Create a new post
   product.createPost = function(post) {
-    return $http.post('/posts', post).success(function(data){
-      product.posts.push(data);
+    return $http.post('/posts', post).success(function(res){
+      product.posts.push(res);
     });
   };
 
-  //Upvotes
-  product.upvote = function(post) {
-    return $http.put('/posts/'+post._id+'/upvote').success(function(data){
+  //Upvotes Post
+  product.upvotePost = function(post) {
+    return $http.put('/posts/'+post._id+'/upvote').success(function(res){
       post.upvotes += 1;
+    });
+  };
+
+  //Downvotes Post
+  product.downvotePost = function(post) {
+    return $http.put('/posts/'+post._id+'/downvote').success(function(res){
+      post.upvotes -= 1;
+    });
+  };
+
+  //Show individual post
+  product.getPost = function(id){
+    return $http.get('/posts/'+id).success(function(res){
+      return res;
+    });
+  };
+
+  //Adding comments
+  product.addComment = function(id, comment){
+    return $http.post('/posts/'+id+'/comments', comment);
+  };
+
+  //Upvote comments
+  product.upvoteComment = function(post, comment){
+    return $http.put('/posts/'+post._id+'/comments/'+comment._id+'/upvote').success(function(res){
+      comment.upvotes += 1;
+    });
+  };
+
+  //Downvote comments
+  product.downvoteComment = function(post, comment){
+    return $http.put('/posts/'+post._id+'/comments/'+comment._id+'/downvote').success(function(res){
+      comment.upvotes -= 1;
     });
   };
 
@@ -48,7 +81,12 @@ app.config([
         .state('posts', {
           url: '/posts/{id}',
           templateUrl: '/posts.html',
-          controller: 'postsController'
+          controller: 'postsController',
+          resolve: {
+            postToDisplay: ['$stateParams', 'postsFactory', function($stateParams, postsFactory){
+              return postsFactory.getPost($stateParams.id);
+            }]
+          }
         });
     $urlRouterProvider.otherwise('home');
   }
@@ -68,27 +106,37 @@ app.controller("mainController", [
       });
       $scope.title = '';
       $scope.link = '';
-    }
-    $scope.incrementUpvotes = function(post) {
-      postsFactory.upvote(post);
-    }
+    };
+    $scope.upvotePost = function(post) {
+      postsFactory.upvotePost(post);
+    };
+    $scope.downvotePost = function(post) {
+      postsFactory.downvotePost(post);
+    };
   }
 ]);
 
 app.controller("postsController", [
   '$scope',
-  '$stateParams',
   'postsFactory',
-  function($scope, $stateParams, postsFactory){
-    $scope.post = postsFactory.posts[$stateParams.id];
+  'postToDisplay',
+  function($scope, postsFactory, postToDisplay){
+    $scope.post = postToDisplay.data;
     $scope.addComment = function(){
       if($scope.commentBody === '') {return;}
-      $scope.post.comments.push({
+      postsFactory.addComment($scope.post._id, {
         author: 'user',
-        body  : $scope.commentBody,
-        upvotes: 0
+        body  : $scope.commentBody
+      }).success(function(resComment){
+        $scope.post.comments.push(resComment);
       });
       $scope.commentBody = '';
-    }
+    };
+    $scope.upvoteComment = function(post, comment){
+      postsFactory.upvoteComment(post, comment);
+    };
+    $scope.downvoteComment = function(post, comment){
+      postsFactory.downvoteComment(post, comment);
+    };
   }
 ]);
