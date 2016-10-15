@@ -1,18 +1,33 @@
 
 var app = angular.module('tidder', ['ui.router']);
 
-app.factory('postsFactory', [function(){
+app.factory('postsFactory', ['$http',function($http){
   //Code goes here
-  var o = {
-    posts: [{title: "hello",
-            link: '',
-            upvotes: 0,
-            comments: [
-              {author: 'Joe', body: 'Cool post!', upvotes: 0},
-              {author: 'Bob', body: 'Great idea but everything is wrong!', upvotes: 0}
-            ]}]
+  var product = {
+    posts: []
   };
-  return o;
+  //Get all posts in the database
+  product.getAll = function() {
+    return $http.get('/posts').success(function(data) {
+      angular.copy(data, product.posts);
+    });
+  };
+
+  //Create a new post
+  product.createPost = function(post) {
+    return $http.post('/posts', post).success(function(data){
+      product.posts.push(data);
+    });
+  };
+
+  //Upvotes
+  product.upvote = function(post) {
+    return $http.put('/posts/'+post._id+'/upvote').success(function(data){
+      post.upvotes += 1;
+    });
+  };
+
+  return product;
 }])
 
 app.config([
@@ -23,7 +38,12 @@ app.config([
         .state('home', {
           url: '/home',
           templateUrl: '/home.html',
-          controller: 'mainController'
+          controller: 'mainController',
+          resolve: {
+            postPromise: ['postsFactory',function(postsFactory) {
+              return postsFactory.getAll();
+            }]
+          }
         })
         .state('posts', {
           url: '/posts/{id}',
@@ -42,17 +62,15 @@ app.controller("mainController", [
     $scope.posts = postsFactory.posts;
     $scope.addPost = function(){
       if (!$scope.title || $scope.title === '') {return;}
-      $scope.posts.push({
+      postsFactory.createPost({
         title: $scope.title,
-        link: $scope.link,
-        upvotes: 0,
-        comments: []
+        link: $scope.link
       });
       $scope.title = '';
       $scope.link = '';
     }
     $scope.incrementUpvotes = function(post) {
-      post.upvotes += 1;
+      postsFactory.upvote(post);
     }
   }
 ]);
