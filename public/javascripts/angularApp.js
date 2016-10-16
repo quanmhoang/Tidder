@@ -63,6 +63,39 @@ app.factory('postsFactory', ['$http',function($http){
   return product;
 }])
 
+
+.factory('auth', ['$http', '$window', function($http, $window){
+  var auth = {};
+
+
+  //Save JWT token to localStorage
+  auth.saveToken = funciton(token){
+    $window.localStorage['tidder-token'] = token;
+  };
+
+  //Get JWT token from localStorage
+  auth.getToken = function(){
+    return $windows.localStorage['tidder-token'];
+  };
+
+  //Login status check
+  auth.isLoggedIn = function(){
+    var token = auth.getToken();
+
+    if(token) {
+      var payload = JSON.parse($window.atob(token.split('.')[1]));
+      return payload.exp > Date.now() / 1000;
+    }
+    else {
+      return false;
+    }
+  }
+
+
+  return auth;
+
+}]);
+
 app.config([
   '$stateProvider',
   '$urlRouterProvider',

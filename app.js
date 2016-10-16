@@ -5,14 +5,22 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
+var passport = require('passport');
+
 require('./models/Posts');
 require('./models/Comments');
+require('./models/Users');
+require('./config/passport');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
 
 
 var app = express();
+
+//Initialise passport
+
+app.use(passport.initialize());
 
 //Connect to news database
 mongoose.connect('mongodb://localhost/news');
