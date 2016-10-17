@@ -8,6 +8,14 @@
     <style> .glyphicon-thumbs-up, .glyphicon-thumbs-down { cursor:pointer } </style>
   </head>
   <body ng-app="tidder">
+    <nav class="navbar navbar-default pull-right" ng-controller="navController">
+      <ul class="nav navbar-nav">
+        <li ng-show="isLoggedIn()"><a>{{ currentUser() }}</a></li>
+        <li ng-show="isLoggedIn()"><a href="" ng-click="logout()">Log Out</a></li>
+        <li ng-hide="isLoggedIn()"><a href="/#/login">Log In</a></li>
+        <li ng-hide="isLoggedIn()"><a href="/#/register">Register</a></li>
+      </ul>
+    </nav>
     <div class="row">
       <div class="col-md-6 col-md-offset-3">
         <ui-view></ui-view>
@@ -30,12 +38,15 @@
       <span ng-hide="post.link">
         {{post.title}}
       </span>
+      <span ng-show="post.author">
+        posted by <a>{{post.author}}</a> |
+      </span>
       <span>
         <a href="#/posts/{{post._id}}">Comments</a>
       </span>
        - upvotes: {{post.upvotes}}
     </div>
-    <form ng-submit="addPost()">
+    <form ng-submit="addPost()" ng-show="isLoggedIn()">
       <div class="form-group">
         <input placeholder="Title" type="text" class="form-control" ng-model="title">
       </div>
@@ -44,6 +55,7 @@
       </div>
       <button type="submit" class="btn btn-default">Post</button>
     </form>
+    <div ng-hide="isLoggedIn()">Please login to create new post </div>
 
   </script>
 
@@ -68,12 +80,81 @@
         {{comment.body}}
       </span>
     </div>
-    <form ng-submit="addComment()">
+    <form ng-submit="addComment()" ng-show="isLoggedIn()">
       <div class="form-group">
         <input placeholder="Comments" type="text" class="form-control" ng-model="commentBody">
       </div>
       <button type="submit" class="btn btn-default">Submit</button>
     </form>
+    <div ng-hide="isLoggedIn()">Please login to comment</div>
   </script>
+
+  <!-- Template: register -->
+  <script type="text/ng-template" id="/register.html">
+    <div class="page-header">
+      <h1>Tidder Register</h1>
+    </div>
+
+    <div ng-show="error" class="alert alert-danger row">
+      <span>{{ error.message }}</span>
+    </div>
+
+    <form ng-submit="register()"
+      style="margin-top:30px;">
+      <h3>Register</h3>
+
+      <div class="form-group">
+        <input type="text"
+        class="form-control"
+        placeholder="Username"
+        ng-model="username"></input>
+      </div>
+      <div class="form-group">
+        <input type="password"
+        class="form-control"
+        placeholder="Password"
+        ng-model="password"></input>
+      </div>
+      <div class="form-group">
+        <input type="email"
+        class="form-control"
+        placeholder="Email"
+        ng-model="email"></input>
+      </div>
+      <button type="submit" class="btn btn-primary">Register</button>
+    </form>
+  </script>
+
+  <!-- Template: login -->
+  <script type="text/ng-template" id="/login.html">
+  <div class="page-header">
+    <h1>Login</h1>
+  </div>
+
+  <div ng-show="error" class="alert alert-danger row">
+    <span>{{ error.message }}</span>
+  </div>
+
+  <form ng-submit="login()"
+    style="margin-top:30px;">
+    <h3>Log In</h3>
+
+    <div class="form-group">
+      <input type="text"
+      class="form-control"
+      placeholder="Username"
+      ng-model="username"></input>
+    </div>
+    <div class="form-group">
+      <input type="password"
+      class="form-control"
+      placeholder="Password"
+      ng-model="password"></input>
+    </div>
+    <button type="submit" class="btn btn-primary">Log In</button>
+  </form>
+  </script>
+
+
   </body>
 </html>

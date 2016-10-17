@@ -18,12 +18,10 @@ var users = require('./routes/users');
 
 var app = express();
 
-//Initialise passport
 
-app.use(passport.initialize());
 
 //Connect to news database
-mongoose.connect('mongodb://localhost/news');
+mongoose.connect(process.env.MONGOLAB_URI || 'mongodb://localhost/news');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -37,6 +35,9 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+//Initialise passport
+
+app.use(passport.initialize());
 app.use('/', routes);
 app.use('/users', users);
 
