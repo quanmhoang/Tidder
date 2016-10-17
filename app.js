@@ -18,8 +18,6 @@ var users = require('./routes/users');
 
 var app = express();
 
-
-
 //Connect to news database
 mongoose.connect(process.env.MONGOLAB_URI || 'mongodb://localhost/news');
 
