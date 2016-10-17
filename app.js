@@ -19,7 +19,7 @@ var users = require('./routes/users');
 var app = express();
 
 //Connect to news database
-mongoose.connect(process.env.MONGOLAB_URI || 'mongodb://localhost/news');
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost/news');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
